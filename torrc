@@ -1,0 +1,34 @@
+# Tor Hidden Service Configuration
+DataDirectory /var/lib/tor
+HiddenServiceDir /var/lib/tor/hidden_service/
+#HiddenServiceAuthorizeClient auth
+#HiddenServiceAllowGuests 0
+HiddenServiceVersion 3
+HiddenServicePort 80 flask:5000
+
+# You can run multiple hidden services by uncommenting and modifying the lines below
+# Hidden service 2: with authentication
+#HiddenServiceDir /var/lib/tor/hidden_service_auth
+#HiddenServicePort 80 127.0.0.1:8080
+#HiddenServiceAuthorizeClient auth
+#HiddenServiceAllowGuests 0
+
+# Control port (optional, for monitoring)
+SocksPort 0
+
+# Log settings (optional)
+Log notice file /var/log/tor/tor.log
+
+# Additional Recommended Options
+SafeLogging 1
+ProtocolWarnings 1
+
+SafeSocks 1
+TestSocks 1
+WarnUnsafeSocks 1
+#DNSPort 0
+#RelayBandwidthRate 100 KBytes
+#RelayBandwidthBurst 200 KBytes
+#NumEntryGuards 8
+#PathsNeededToBuildCircuits 0.95
+

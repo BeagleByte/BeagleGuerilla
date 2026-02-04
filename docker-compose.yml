@@ -1,0 +1,36 @@
+services:
+  tor-hidden-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tor-hidden-service
+    volumes:
+      # Persistent storage for Tor hidden service keys
+      - ./app:/app
+    environment:
+      # Optional environment variables
+      - TOR_DEBUG=1
+      - TOR_CONFIG_PATH=/etc/tor/torrc
+    restart: unless-stopped
+    networks:
+      - internet
+      - internal
+
+  flask:
+    build: ./app
+    ports:
+      - "80:5000"
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - tor-hidden-service
+    networks:
+      - internal
+    restart: always
+
+networks:
+  internet:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true
