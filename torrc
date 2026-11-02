@@ -17,6 +17,8 @@ HiddenServicePort 80 flask:5000
 SocksPort 0
 
 # Log settings (optional)
+# Log to both: stdout (captured by `docker compose logs`) and a file
+Log notice stdout
 Log notice file /var/log/tor/tor.log
 
 # Additional Recommended Options

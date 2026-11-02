@@ -26,7 +26,7 @@ def index():
 
 @app.route('/auto-refresh')
 def auto_refresh():
-    return render_template('page.html', refresh_interval=30)
+    return render_template('refresh_example.html', refresh_interval=30)
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)

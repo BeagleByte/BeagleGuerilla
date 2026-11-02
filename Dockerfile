@@ -17,9 +17,13 @@ WORKDIR /var/lib/tor
 
 COPY torrc /etc/tor/torrc
 
+COPY tor-entrypoint.sh /usr/local/bin/tor-entrypoint.sh
+RUN chmod +x /usr/local/bin/tor-entrypoint.sh
+
 
 EXPOSE 80
 USER debian-tor
+ENTRYPOINT ["/usr/local/bin/tor-entrypoint.sh"]
 CMD ["tor", "-f", "/etc/tor/torrc"]
 # Expose ports
 
