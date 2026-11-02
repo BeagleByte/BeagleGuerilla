@@ -1,3 +1,15 @@
+# BeagleGuerilla hidden service
+#
+# Without vanguards (default):
+#   docker compose up -d
+#
+# With vanguards (extra guard-discovery protection):
+#   export TOR_CONTROL_PASSWORD='a-strong-password'
+#   docker compose --profile vanguards up -d
+#
+# Note: the onion keys now persist in the `tor_data` volume.
+# Keep this volume safe - losing it means a new onion address.
+
 services:
   tor-hidden-service:
     build:
@@ -5,12 +17,15 @@ services:
       dockerfile: Dockerfile
     container_name: tor-hidden-service
     volumes:
-      # Persistent storage for Tor hidden service keys
+      # Persistent storage for Tor hidden service keys (KEEP SAFE!)
+      - tor_data:/var/lib/tor
       - ./app:/app
     environment:
-      # Optional environment variables
       - TOR_DEBUG=1
       - TOR_CONFIG_PATH=/etc/tor/torrc
+      # Set this to enable the control port that vanguards talks to.
+      # Same value is used by the vanguards container below.
+      - CONTROL_PASSWORD=${TOR_CONTROL_PASSWORD:-change-me-tor-control}
     restart: unless-stopped
     networks:
       - internet
@@ -19,7 +34,10 @@ services:
   flask:
     build: ./app
     ports:
-      - "80:5000"
+      # DEBUG ONLY: loopback binding for local checks via SSH tunnel.
+      # NEVER publish the flask port publicly - it would expose the
+      # hidden service's content in cleartext and deanonymize it.
+      - "127.0.0.1:5000:5000"
     environment:
       - FLASK_ENV=development
     depends_on:
@@ -28,9 +46,31 @@ services:
       - internal
     restart: always
 
+  vanguards:
+    profiles: ["vanguards"]   # only started with --profile vanguards
+    build: ./vanguards
+    container_name: vanguards
+    depends_on:
+      - tor-hidden-service
+    environment:
+      - CONTROL_HOST=tor-hidden-service
+      - CONTROL_PORT=9051
+      - VANGUARDS_PASSWORD=${TOR_CONTROL_PASSWORD:-change-me-tor-control}
+      - LOGLEVEL=NOTICE
+      - VANGUARDS_STATE=/var/lib/vanguards/state.json
+    volumes:
+      - vanguards_state:/var/lib/vanguards
+    restart: unless-stopped
+    networks:
+      - internal
+
 networks:
   internet:
     driver: bridge
   internal:
     driver: bridge
     internal: true
+
+volumes:
+  tor_data:
+  vanguards_state:
