@@ -2,6 +2,7 @@
 
 2.11.2026 -> test hidden service and vanguards. Both works now with python3 -> 3.13
 
+Attention with vangaurds in place, the hidden service becomes a delay and need time to appear!!
 
 Docker-based Tor hidden service with an example Flask app.
 Optional Vanguards protection against guard discovery attacks.
